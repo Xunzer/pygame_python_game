@@ -19,6 +19,8 @@ food = [0, 0]
 new_food = True
 new_cell = [0, 0]
 score = 0
+game_over = False
+clicked = False
 
 # define python
 python_pos = [[int(screen_width / 2), int(screen_height / 2)]]
@@ -34,9 +36,12 @@ food_color = (255, 80, 80)
 red = (255, 0, 0)
 blue = (0, 0, 255)
 
+# a rectangle for play again
+again_rect = Rect(screen_width // 2 - 80, screen_height // 2, 160, 50)
 
 # define font
 font = pygame.font.SysFont(None, 40)
+
 
 def draw_screen():
     screen.fill(bg_color)
@@ -46,13 +51,36 @@ def draw_score():
     score_image = font.render(score_text, True, blue)
     screen.blit(score_image, (0, 0))
 
+def check_game_over(game_over: bool):
+    # check if python has eaten itself
+    for cell in python_pos[1:]:
+        if python_pos[0] == cell:
+            game_over = True
+    
+    # check if snake has gone out of the bounds
+    if python_pos[0][0] < 0 or python_pos[0][0] > screen_width or python_pos[0][1] < 0 or python_pos[0][1] > screen_height:
+        game_over = True
+    
+    return game_over
+
+def draw_game_over():
+    game_over_text = "Game Over!"
+    game_over_image = font.render(game_over_text, True, blue)
+    pygame.draw.rect(screen, red, (screen_width // 2 - 80, screen_height // 2 - 60, 160, 50))
+    screen.blit(game_over_image, (screen_width // 2 - 80, screen_height // 2 - 50))
+
+    again_text = "Play again?"
+    again_image = font.render(again_text, True, blue)
+    pygame.draw.rect(screen, red, again_rect)
+    screen.blit(again_image, (screen_width // 2 - 80, screen_height // 2 + 10))
+
 # set game loop
 run = True
 while run:
 
     draw_screen()
     draw_score()
-    
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -103,30 +131,54 @@ while run:
         # increase the score
         score += 1
 
+    if game_over == False:
     # only update the animation of python when the timer has been met
-    if update_python > 99:
-        update_python = 0
-        # shift up the position of last body cell to the front, shift back the rest of body cells by 1 to the back (so that the python will start to move)
-        python_pos = python_pos[-1:] + python_pos[:-1]
-        # heading up
-        if direction == 1:
-            # x coordinate doesn't change, y coordinate goes up so reduce the size of the cell (closer to origin)
-            python_pos[0][0] = python_pos[1][0]
-            python_pos[0][1] = python_pos[1][1] - cell_size
-        if direction == 3:
-            # x coordinate doesn't change, y coordinate goes down so increase the size of the cell (further from origin)
-            python_pos[0][0] = python_pos[1][0]
-            python_pos[0][1] = python_pos[1][1] + cell_size
-        if direction == 2:
-            # y coordinate doesn't change, x coordinate goes to right so increase the size of the cell (further to origin)
-            python_pos[0][1] = python_pos[1][1]
-            python_pos[0][0] = python_pos[1][0] + cell_size
-        if direction == 4:
-            # y coordinate doesn't change, x coordinate goes to left so reduce the size of the cell (closer to origin)
-            python_pos[0][1] = python_pos[1][1]
-            python_pos[0][0] = python_pos[1][0] - cell_size
+        if update_python > 99:
+            update_python = 0
+            # shift up the position of last body cell to the front, shift back the rest of body cells by 1 to the back (so that the python will start to move)
+            python_pos = python_pos[-1:] + python_pos[:-1]
+            # heading up
+            if direction == 1:
+                # x coordinate doesn't change, y coordinate goes up so reduce the size of the cell (closer to origin)
+                python_pos[0][0] = python_pos[1][0]
+                python_pos[0][1] = python_pos[1][1] - cell_size
+            if direction == 3:
+                # x coordinate doesn't change, y coordinate goes down so increase the size of the cell (further from origin)
+                python_pos[0][0] = python_pos[1][0]
+                python_pos[0][1] = python_pos[1][1] + cell_size
+            if direction == 2:
+                # y coordinate doesn't change, x coordinate goes to right so increase the size of the cell (further to origin)
+                python_pos[0][1] = python_pos[1][1]
+                python_pos[0][0] = python_pos[1][0] + cell_size
+            if direction == 4:
+                # y coordinate doesn't change, x coordinate goes to left so reduce the size of the cell (closer to origin)
+                python_pos[0][1] = python_pos[1][1]
+                python_pos[0][0] = python_pos[1][0] - cell_size
 
+            game_over = check_game_over(game_over)
 
+    if game_over == True:
+        draw_game_over()
+        if event.type == pygame.MOUSEBUTTONDOWN and clicked == False:
+            clicked = True
+        if event.type == pygame.MOUSEBUTTONUP and clicked == True:
+            clicked = False
+            mouse_pos = pygame.mouse.get_pos()
+            if again_rect.collidepoint(mouse_pos):
+                # reset game variables
+                direction = 1 # 1 is up, 2 is right, 3 is down, 4 is left
+                update_python = 0 # a timer for the movement of python
+                food = [0, 0]
+                new_food = True
+                new_cell = [0, 0]
+                score = 0
+                game_over = False
+
+                # reinitialize python
+                python_pos = [[int(screen_width / 2), int(screen_height / 2)]]
+                python_pos.append([int(screen_width / 2), int(screen_height / 2) + cell_size])
+                python_pos.append([int(screen_width / 2), int(screen_height / 2) + cell_size * 2])
+                python_pos.append([int(screen_width / 2), int(screen_height / 2) + cell_size * 3])
 
 
     # draw python

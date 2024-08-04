@@ -57,9 +57,9 @@ def check_game_over(game_over: bool):
         if python_pos[0] == cell:
             game_over = True
     
-    # check if python has gone out of the bounds
-    if python_pos[0][0] < 0 or python_pos[0][0] > screen_width or python_pos[0][1] < 0 or python_pos[0][1] > screen_height:
-        game_over = True
+    # # check if python has gone out of the bounds
+    # if python_pos[0][0] < 0 or python_pos[0][0] > screen_width or python_pos[0][1] < 0 or python_pos[0][1] > screen_height:
+    #     game_over = True
     
     return game_over
 
@@ -154,6 +154,17 @@ while run:
                 # y coordinate doesn't change, x coordinate goes to left so reduce the size of the cell (closer to origin)
                 python_pos[0][1] = python_pos[1][1]
                 python_pos[0][0] = python_pos[1][0] - cell_size
+
+            # screen wrapping so that the python cell could go to the other side of screen when going beyond
+            for cell in python_pos:
+                if cell[0] > screen_width:
+                    cell[0] = 0
+                elif cell[0] < 0:
+                    cell[0] = screen_width
+                elif cell[1] > screen_height:
+                    cell[1] = 0
+                elif cell[1] < 0:
+                    cell[1] = screen_height
 
             game_over = check_game_over(game_over)
 

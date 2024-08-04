@@ -57,7 +57,7 @@ def check_game_over(game_over: bool):
         if python_pos[0] == cell:
             game_over = True
     
-    # check if snake has gone out of the bounds
+    # check if python has gone out of the bounds
     if python_pos[0][0] < 0 or python_pos[0][0] > screen_width or python_pos[0][1] < 0 or python_pos[0][1] > screen_height:
         game_over = True
     

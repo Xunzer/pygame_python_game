@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Python Game")
 
 # define initial game variables
+FPS = 120
 cell_size = 10 # size of python body cell
 direction = 1 # 1 is up, 2 is right, 3 is down, 4 is left
 update_python = 0 # a timer for the movement of python
@@ -76,8 +77,10 @@ def draw_game_over():
 
 # set game loop
 run = True
+clock = pygame.time.Clock()
 while run:
 
+    clock.tick(FPS)
     draw_screen()
     draw_score()
 
